@@ -347,7 +347,7 @@ on post-fs-data
     restorecon /data
 
     # start debuggerd to make debugging early-boot crashes easier.
-    start debuggerd
+    #start debuggerd
     start debuggerd64
 
     # Make sure we have the device encryption key.

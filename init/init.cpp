@@ -499,6 +499,7 @@ static void selinux_init_all_handles(void)
     sehandle_prop = selinux_android_prop_context_handle();
 }
 
+#if !defined(SELINUX_HACK)
 enum selinux_enforcing_status { SELINUX_PERMISSIVE, SELINUX_ENFORCING };
 
 static selinux_enforcing_status selinux_status_from_cmdline() {
@@ -512,7 +513,9 @@ static selinux_enforcing_status selinux_status_from_cmdline() {
 
     return status;
 }
+#endif
 
+#if !defined(SELINUX_HACK)
 static bool selinux_is_enforcing(void)
 {
     if (ALLOW_PERMISSIVE_SELINUX) {
@@ -520,6 +523,7 @@ static bool selinux_is_enforcing(void)
     }
     return true;
 }
+#endif
 
 int selinux_reload_policy(void)
 {
@@ -539,6 +543,7 @@ int selinux_reload_policy(void)
     return 0;
 }
 
+#if !defined(SELINUX_HACK)
 static int audit_callback(void *data, security_class_t /*cls*/, char *buf, size_t len) {
 
     property_audit_data *d = reinterpret_cast<property_audit_data*>(data);
@@ -552,7 +557,9 @@ static int audit_callback(void *data, security_class_t /*cls*/, char *buf, size_
             d->cr->pid, d->cr->uid, d->cr->gid);
     return 0;
 }
+#endif
 
+#if !defined(SELINUX_HACK)
 static void selinux_initialize(bool in_kernel_domain) {
     Timer t;
 
@@ -589,6 +596,7 @@ static void selinux_initialize(bool in_kernel_domain) {
         selinux_init_all_handles();
     }
 }
+#endif
 
 static void install_signal_handlers()
 {
@@ -664,15 +672,19 @@ int main(int argc, char** argv) {
     }
 
     // Set up SELinux, including loading the SELinux policy if we're in the kernel domain.
+#if !defined(SELINUX_HACK)
     selinux_initialize(is_first_stage);
+#endif
 
     // If we're in the kernel domain, re-exec init to transition to the init domain now
     // that the SELinux policy has been loaded.
     if (is_first_stage) {
+#if !defined(SELINUX_HACK)
         if (restorecon("/init") == -1) {
             ERROR("restorecon failed: %s\n", strerror(errno));
             security_failure();
         }
+#endif
         char* path = argv[0];
         char* args[] = { path, const_cast<char*>("--second-stage"), nullptr };
         if (execv(path, args) == -1) {
